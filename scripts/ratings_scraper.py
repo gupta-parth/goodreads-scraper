@@ -1,5 +1,8 @@
 import csv
 import re
+from bs4 import BeautifulSoup
+import requests
+from sympy import content
 
 '''
 We want to scrape goodreads rating for each book in the conlit dataset and the number of ratings as well.
@@ -19,9 +22,23 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
         # The name doesn't have spaces, each new word starts with a capital
         name = row[8]
         name_list = [word for word in re.split('([A-Z][^A-Z]*)', name) if word]
+
+        # Constructing the search url
         search_book_url = search_url + author_first + '+' + author_last
         for word in name_list:
             search_book_url += '+' + word
+
+        # Set up soup object
+        page = requests.get(search_book_url)
+        soup = BeautifulSoup(page.content, 'html.parser')
+
+        # Get all the book results
+        main_content_div = soup.find('div', class_='mainContent')
+        main_content_float = main_content_div.find(
+            'div', class_='mainContentFloat')
+        left_container = main_content_float.find('div', class_='leftContainer')
+        book_results = soup.find_all('tr')
+
         if line_count != 0:
             print(
                 f'Author: {author_first} {author_last}, Book: {str(name_list)}, Search: {search_book_url}')
