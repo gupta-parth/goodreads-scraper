@@ -49,6 +49,7 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
                 text_list = rating_text.split()
                 print(f"Avg: {text_list[0]}, Number: {text_list[4]}")
                 print('----------------')
+
         line_count += 1
         if line_count == 10:
             break
