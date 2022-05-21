@@ -18,7 +18,7 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
     writer = csv.writer(out, delimiter='\t')
     header = ['ID', 'Category', 'Language', 'Genre', 'Genre2', 'Pubdate', 'Author_Last', 'Author_First',
               'Work_Title', 'Translation', 'PubHouse',
-              'Prize', 'WinnerShortlist', 'AuthorGender', 'Author_Nationality', 'Goodreads_Rating', 'Review_Count', 'Goodreads_URL']
+              'Prize', 'WinnerShortlist', 'Author_Gender', 'Author_Nationality', 'Goodreads_Rating', 'Review_Count', 'Goodreads_URL']
     writer.writerow(header)
 
     line_count = 0
@@ -97,3 +97,4 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
         line_count += 1
         if line_count == 100:
             break
+print(misses)
