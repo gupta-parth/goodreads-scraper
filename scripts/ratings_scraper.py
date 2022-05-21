@@ -10,12 +10,13 @@ Obviously, we want to pick the average rating which has the highest number of ra
 that would be the most accurate averge rating.
 '''
 misses = []
-with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') as f, open('data/output.csv', 'w', newline='') as out:
+with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') as f, \
+        open('data/output.csv', 'w', encoding='utf8', newline='') as out:
     search_url = 'https://www.goodreads.com/search?q='
 
     reader = csv.reader(f, delimiter='\t')      # File is delimited with tab
     writer = csv.writer(out, delimiter='\t')
-    header = ['ID', 'Category', 'Genre', 'Genre2', 'Pubdate', 'Author_Last', 'Author_First',
+    header = ['ID', 'Category', 'Language', 'Genre', 'Genre2', 'Pubdate', 'Author_Last', 'Author_First',
               'Work_Title', 'Translation', 'PubHouse',
               'Prize', 'WinnerShortlist', 'AuthorGender', 'Author_Nationality', 'Goodreads_Rating', 'Review_Count', 'Goodreads_URL']
     writer.writerow(header)
@@ -39,16 +40,28 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
             # Set up soup object
             page = requests.get(search_book_url)
             soup = BeautifulSoup(page.content, 'html.parser')
+            print(search_book_url)
 
             # Check if there are no search results
-            results = soup.find('h3', class_='searchSubNavContainer').text
-            if results == 'No results.':
-                # Search with just the book title (remove the author name)
-                search_book_url = search_url
-                for word in name_list:
-                    search_book_url += '+' + word
-                page = requests.get(search_book_url)
-                soup = BeautifulSoup(page.content, 'html.parser')
+            tries = 3
+            for i in range(tries):
+                try:
+                    results = soup.find(
+                        'h3', class_='searchSubNavContainer').text
+                    if results == 'No results.':
+                        # Search with just the book title (remove the author name)
+                        search_book_url = search_url
+                        for word in name_list:
+                            search_book_url += '+' + word
+                        page = requests.get(search_book_url)
+                        soup = BeautifulSoup(page.content, 'html.parser')
+                except:
+                    if i < tries - 1:
+                        continue
+                    else:
+                        print(soup)
+                        raise
+                break
 
             # Get all the book results
             main_content_div = soup.find('div', class_='mainContent')
