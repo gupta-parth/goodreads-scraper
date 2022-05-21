@@ -44,10 +44,13 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
             book_results = soup.find_all('tr')
             print(
                 f'Line: {line_count + 1}, Author: {author_first} {author_last}, Book: {str(name_list)}, Search: {search_book_url}')
+            if book_results == []:      # There are no results
+                pass
             for book in book_results:
                 rating_text = book.find('span', class_='minirating').text
                 text_list = rating_text.split()
-                print(f"Avg: {text_list[0]}, Number: {text_list[4]}")
+                print(
+                    f"Avg: {text_list[-6]}, Number: {int(text_list[-2].replace(',',''))}")
                 print('----------------')
 
         line_count += 1
