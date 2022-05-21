@@ -1,20 +1,25 @@
 import csv
 import re
 from bs4 import BeautifulSoup
-from matplotlib.pyplot import text
 import requests
-from sympy import content
+
 
 '''
 We want to scrape goodreads rating for each book in the conlit dataset and the number of ratings as well.
 Obviously, we want to pick the average rating which has the highest number of ratings given since
 that would be the most accurate averge rating.
 '''
-
-with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') as f:
+misses = []
+with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') as f, open('data/output.csv', 'w', newline='') as out:
     search_url = 'https://www.goodreads.com/search?q='
 
     reader = csv.reader(f, delimiter='\t')      # File is delimited with tab
+    writer = csv.writer(out, delimiter='\t')
+    header = ['ID', 'Category', 'Genre', 'Genre2', 'Pubdate', 'Author_Last', 'Author_First',
+              'Work_Title', 'Translation', 'PubHouse',
+              'Prize', 'WinnerShortlist', 'AuthorGender', 'Author_Nationality', 'Goodreads_Rating', 'Review_Count', 'Goodreads_URL']
+    writer.writerow(header)
+
     line_count = 0
     for row in reader:
         if line_count != 0:
@@ -54,15 +59,28 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
             book_results = soup.find_all('tr')
             print(
                 f'Line: {line_count + 1}, Author: {author_first} {author_last}, Book: {str(name_list)}, Search: {search_book_url}')
-
+            max_reviews = -10000000000
+            rating = 0.00
             for book in book_results:
                 rating_text = book.find('span', class_='minirating').text
                 text_list = rating_text.split()
+                num_reviews = int(text_list[-2].replace(',', ''))
+                rating_given = text_list[-6]
+                if num_reviews > max_reviews:
+                    max_reviews = num_reviews
+                    rating = rating_given
                 print(
                     f"Avg: {text_list[-6]}, Number: {int(text_list[-2].replace(',',''))}")
+            if max_reviews == -10000000000:
+                misses.append("Line " + str(line_count))
 
+            print(f"Rating: {rating}, Reviews: {max_reviews}")
+            row.append(rating)
+            row.append(max_reviews)
+            row.append(search_book_url)
+            writer.writerow(row)
             print('---------------------------')
 
         line_count += 1
-        if line_count == 10:
+        if line_count == 100:
             break
