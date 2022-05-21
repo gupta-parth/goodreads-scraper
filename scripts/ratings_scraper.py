@@ -95,6 +95,5 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
             print('---------------------------')
 
         line_count += 1
-        if line_count == 100:
-            break
+print(len(misses))
 print(misses)
