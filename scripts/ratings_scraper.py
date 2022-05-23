@@ -22,7 +22,9 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
     writer.writerow(header)
 
     line_count = 0
-    for row in reader:
+    rows = [r for r in reader]
+
+    for i, row in enumerate(rows):
         if line_count != 0:
             author_first = row[7]
             author_last = row[6]
@@ -44,7 +46,7 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
 
             # Check if there are no search results
             tries = 3
-            for i in range(tries):
+            for x in range(tries):
                 try:
                     results = soup.find(
                         'h3', class_='searchSubNavContainer').text
@@ -56,20 +58,32 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
                         page = requests.get(search_book_url)
                         soup = BeautifulSoup(page.content, 'html.parser')
                 except:
-                    if i < tries - 1:
+                    if x < tries - 1:
                         continue
                     else:
                         print(soup)
+                        print(f"Index: {i}, Line: {line_count}")
                         raise
                 break
 
             # Get all the book results
-            main_content_div = soup.find('div', class_='mainContent')
-            main_content_float = main_content_div.find(
-                'div', class_='mainContentFloat')
-            left_container = main_content_float.find(
-                'div', class_='leftContainer')
-            book_results = soup.find_all('tr')
+            tries = 3
+            for x in range(tries):
+                try:
+                    main_content_div = soup.find('div', class_='mainContent')
+                    main_content_float = main_content_div.find(
+                        'div', class_='mainContentFloat')
+                    left_container = main_content_float.find(
+                        'div', class_='leftContainer')
+                    book_results = soup.find_all('tr')
+                except:
+                    if x < tries - 1:
+                        continue
+                    else:
+                        print(soup)
+                        print(f"Index: {i}, Line: {line_count}")
+                        raise
+
             print(
                 f'Line: {line_count + 1}, Author: {author_first} {author_last}, Book: {str(name_list)}, Search: {search_book_url}')
             max_reviews = -10000000000
