@@ -11,7 +11,7 @@ that would be the most accurate averge rating.
 '''
 misses = []
 with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') as f, \
-        open('data/output.csv', 'w', encoding='utf8', newline='') as out:
+        open('data/output.csv', 'a', encoding='utf8', newline='') as out:
     search_url = 'https://www.goodreads.com/search?q='
 
     reader = csv.reader(f, delimiter='\t')      # File is delimited with tab
@@ -21,11 +21,11 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
               'Prize', 'WinnerShortlist', 'Author_Gender', 'Author_Nationality', 'Goodreads_Rating', 'Review_Count', 'Goodreads_URL']
     writer.writerow(header)
 
-    line_count = 0
     rows = [r for r in reader]
 
-    for i, row in enumerate(rows):
-        if line_count != 0:
+    for i in range(len(rows)):
+        row = rows[i]
+        if i != 0:
             author_first = row[7]
             author_last = row[6]
 
@@ -62,7 +62,7 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
                         continue
                     else:
                         print(soup)
-                        print(f"Index: {i}, Line: {line_count}")
+                        print(f"Index: {i}")
                         raise
                 break
 
@@ -81,11 +81,11 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
                         continue
                     else:
                         print(soup)
-                        print(f"Index: {i}, Line: {line_count}")
+                        print(f"Index: {i}")
                         raise
 
             print(
-                f'Line: {line_count + 1}, Author: {author_first} {author_last}, Book: {str(name_list)}, Search: {search_book_url}')
+                f'Line: {i}, Author: {author_first} {author_last}, Book: {str(name_list)}, Search: {search_book_url}')
             max_reviews = -10000000000
             rating = 0.00
             for book in book_results:
@@ -99,7 +99,7 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
                 print(
                     f"Avg: {text_list[-6]}, Number: {int(text_list[-2].replace(',',''))}")
             if max_reviews == -10000000000:
-                misses.append("Line " + str(line_count))
+                misses.append("Line " + str(i))
 
             print(f"Rating: {rating}, Reviews: {max_reviews}")
             row.append(rating)
@@ -108,6 +108,5 @@ with open('data/txtlab_CONLIT_META_2022.csv', 'r', encoding='utf8', newline='') 
             writer.writerow(row)
             print('---------------------------')
 
-        line_count += 1
 print(len(misses))
 print(misses)
